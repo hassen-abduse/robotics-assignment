@@ -1,0 +1,5 @@
+float64[] input_vectors
+float64[] angles
+float64 d
+---
+float64[] output_vectors
