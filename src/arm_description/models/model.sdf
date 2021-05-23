@@ -4,7 +4,7 @@
     <static>false</static>
     <self_collide>1</self_collide>
     <link name="chasis">
-        <pose>0 0 0.05 0 0 0</pose>
+      <pose>0 0 0.05 0 0 0</pose>
       <collision name="collision">
         <geometry>
           <cylinder>
@@ -104,7 +104,7 @@
       <child> arm1 </child>
       <pose> 0 0 -0.025 0 0 0 </pose>
       <axis>
-        <xyz> 0 0 1  </xyz>
+        <xyz> 1 0 1  </xyz>
       </axis>
     </joint>
 
@@ -132,5 +132,8 @@
         <xyz> 1 0 0  </xyz>
       </axis>
     </joint>
-    <plugin name="arm_control" filename="libarm_gazebo.so" />  </model>
+    <plugin name="arm_control" filename="libarm_gazebo.so">
+      <robotNamespace></robotNamespace>
+    </plugin>
+  </model>
 </sdf>
