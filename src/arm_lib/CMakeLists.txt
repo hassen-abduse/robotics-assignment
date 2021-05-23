@@ -126,6 +126,10 @@ add_dependencies(transformation_server arm_lib_gencpp)
 add_executable(transformation_client src/transformation_client.cpp)
 target_link_libraries(transformation_client ${catkin_LIBRARIES})
 add_dependencies(transformation_client arm_lib_gencpp)
+
+add_executable(angles_subscriber src/angles_subscriber.cpp)
+target_link_libraries(angles_subscriber ${catkin_LIBRARIES})
+add_dependencies(angles_subscriber arm_lib_generate_messages_cpp)
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/arm_lib.cpp
