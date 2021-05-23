@@ -4,4 +4,5 @@
     </include>
     <node name="arm_sdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find arm_description)/models/model.sdf -sdf -model arm">
     </node>
+    
 </launch>

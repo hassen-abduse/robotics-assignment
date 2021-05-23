@@ -24,9 +24,10 @@ include_directories(${Boost_INCLUDE_DIR}
               ${GAZEBO_INCLUDE_DIRS} 
               ${roscpp_INCLUDE_DIRS}
               ${std_msgs_INCLUDE_DIRS})
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 add_library(${PROJECT_NAME} SHARED src/controller.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${roscpp_LIBRARIES})
+
 
 
 ## System dependencies are found with CMake's conventions
