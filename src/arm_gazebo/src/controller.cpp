@@ -30,19 +30,9 @@ namespace gazebo
 			// // instantiate the joint controller
 			this->jointController = this->model->GetJointController();
 
+			// instantiate the angles publisher node
 			ros::NodeHandle node;
-			this->angle_publisher_ = node.advertise<arm_lib::angles>("current_joint_angles", 1000);
-			
-			// // set your PID values
-			this->pid = common::PID(30.1, 10.01, 10.03);
-
-			std::string name = this->model->GetJoint("arm1_arm2_joint")->GetScopedName();
-
-			this->jointController->SetPositionPID(name, pid);
-
-			std::string name1 = this->model->GetJoint("arm2_arm3_joint")->GetScopedName();
-
-			this->jointController->SetPositionPID(name1, pid);
+			this->anglePublisher = node.advertise<arm_lib::angles>("arm/current_joint_angles", 1000);
 
 			// Initialize ros, if it has not already bee initialized.
 			if (!ros::isInitialized())
@@ -69,23 +59,7 @@ namespace gazebo
 			// Spin up the queue helper thread.
 			this->rosQueueThread = std::thread(std::bind(&ModelPush::QueueThread, this));
 
-			// Listen to the update event. This event is broadcast every
-			// simulation iteration.
-			this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-				std::bind(&ModelPush::OnUpdate, this));
-		}
-
-		// Called by the world update start event
-	public:
-		void OnUpdate()
-		{
-			this->publish_joint_angles();
-		}
-
-	public:
-		void OnRosMsg(const arm_lib::anglesConstPtr _msg)
-		{
-			this->update_joint_angles(_msg->joint1_z, _msg->joint1_x, _msg->joint2_x, _msg->joint3_x, _msg->joint4_x);
+			this->publisherThread = std::thread(std::bind(&ModelPush::publishCurrentAngles, this));
 		}
 
 		/// \brief ROS helper function that processes messages
@@ -99,89 +73,84 @@ namespace gazebo
 			}
 		}
 
-		void update_joint_angles(double z0, double x0, double x1, double x2, double x3)
+	private:
+		void OnRosMsg(const arm_lib::anglesConstPtr _msg)
+		{
+			this->updateJointAngles(_msg->joint1, _msg->joint2, _msg->joint3, _msg->joint4);
+		}
+
+	private:
+		void updateJointAngles(double j1, double j2, double j3, double j4)
 		{
 
-			std::string chasis_arm1_joint = this->model->GetJoint("chasis_arm1_joint")->GetScopedName();
-			std::string arm1_arm2_joint = this->model->GetJoint("arm1_arm2_joint")->GetScopedName();
-			std::string arm2_arm3_joint = this->model->GetJoint("arm2_arm3_joint")->GetScopedName();
-			std::string arm3_arm4_joint = this->model->GetJoint("arm3_arm4_joint")->GetScopedName();
+			std::string chasisArm1Joint = this->model->GetJoint("chasis_arm1_joint")->GetScopedName();
+			std::string arm1Arm2Joint = this->model->GetJoint("arm1_arm2_joint")->GetScopedName();
+			std::string arm2Arm3Joint = this->model->GetJoint("arm2_arm3_joint")->GetScopedName();
+			std::string arm3Arm4Joint = this->model->GetJoint("arm3_arm4_joint")->GetScopedName();
 
 			// change to radian
-			z0 = z0 * M_PI / 180.0;
-			x0 = x0 * M_PI / 180.0;
-			x1 = x1 * M_PI / 180.0;
-			x2 = x2 * M_PI / 180.0;
-			x3 = x3 * M_PI / 180.0;
-			this->jointController->SetJointPosition(chasis_arm1_joint, x0, 0);
+			j1 = j1 * M_PI / 180.0;
+			j2 = j2 * M_PI / 180.0;
+			j3 = j3 * M_PI / 180.0;
+			j4 = j4 * M_PI / 180.0;
 
-			this->jointController->SetJointPosition(chasis_arm1_joint, z0, 1);
+			common::PID joint1PID = common::PID(10.0, 1.0, 7.0);
+			this->jointController->SetPositionPID(chasisArm1Joint, joint1PID);
+			this->jointController->SetPositionTarget(chasisArm1Joint, j1);
 
-			this->jointController->SetJointPosition(arm1_arm2_joint, x1, 0);
+			common::PID joint2PID = common::PID(15.0, 2.0, 10.0);
+			this->jointController->SetPositionPID(arm1Arm2Joint, joint2PID);
+			this->jointController->SetPositionTarget(arm1Arm2Joint, j2);
 
-			this->jointController->SetJointPosition(arm2_arm3_joint, x2, 0);
+			common::PID joint3PID = common::PID(12.0, 1.5, 8.8);
+			this->jointController->SetPositionPID(arm2Arm3Joint, joint3PID);
+			this->jointController->SetPositionTarget(arm2Arm3Joint, j3);
 
-			this->jointController->SetJointPosition(arm3_arm4_joint, x3, 0);
+			common::PID joint4PID = common::PID(10.0, 1.0, 7.4);
+			this->jointController->SetPositionPID(arm3Arm4Joint, joint4PID);
+			this->jointController->SetPositionTarget(arm3Arm4Joint, j4);
+
+			this->jointController->Update();
 		}
 
-		void publish_joint_angles()
+	private:
+		void publishCurrentAngles()
 		{
+			while (ros::ok())
+			{
+				double joint1 = physics::JointState(this->model->GetJoint("chasis_arm1_joint")).Position();
 
-			// Get joint position by index.
-			// 0 returns rotation accross X axis
-			// 1 returns rotation accross Y axis
-			// 2 returns rotation accross Z axis
-			// If the Joint has only Z axis for rotation, 0 returns that value and 1 and 2 return nan
-			ROS_INFO("INSIDE PUBLISHER");
-			double joint1_z = physics::JointState(this->model->GetJoint("chasis_arm1_joint")).Position(0);
+				double joint2 = physics::JointState(this->model->GetJoint("arm1_arm2_joint")).Position();
 
-			double joint1_x = physics::JointState(this->model->GetJoint("chasis_arm1_joint")).Position(0);
+				double joint3 = physics::JointState(this->model->GetJoint("arm2_arm3_joint")).Position();
 
-			double joint2_x = physics::JointState(this->model->GetJoint("arm1_arm2_joint")).Position(0);
+				double joint4 = physics::JointState(this->model->GetJoint("arm3_arm4_joint")).Position();
 
-			double joint3_x = physics::JointState(this->model->GetJoint("arm2_arm3_joint")).Position(0);
+				// change to radian to degree
+				joint1 = joint1 * 180.0 / M_PI;
 
-			double joint4_x = physics::JointState(this->model->GetJoint("arm3_arm4_joint")).Position(0);
+				joint2 = joint2 * 180.0 / M_PI;
 
-			// change to radian to degree
-			joint1_z = joint1_z * 180.0 / M_PI;
+				joint3 = joint3 * 180.0 / M_PI;
 
-			joint1_x = joint1_x * 180.0 / M_PI;
+				joint4 = joint4 * 180.0 / M_PI;
 
-			joint2_x = joint2_x * 180.0 / M_PI;
-
-			joint3_x = joint3_x * 180.0 / M_PI;
-
-			joint4_x = joint4_x * 180.0 / M_PI;
-
-			arm_lib::angles joint_angles;
-			joint_angles.joint1_z = joint1_z;
-			joint_angles.joint1_x = joint1_x;
-			joint_angles.joint2_x = joint2_x;
-			joint_angles.joint3_x = joint3_x;
-			joint_angles.joint4_x = joint4_x;
-			ros::Rate loop_rate(10);
-			ROS_INFO("MSG: %f", joint_angles.joint4_x);
-			angle_publisher_.publish(joint_angles);
-			ros::spinOnce();
+				arm_lib::angles joint_angles;
+				joint_angles.joint1 = joint1;
+				joint_angles.joint2 = joint2;
+				joint_angles.joint3 = joint3;
+				joint_angles.joint4 = joint4;
+				ros::Rate loop_rate(10);
+				anglePublisher.publish(joint_angles);
+				ros::spinOnce();
+			}
 		}
 
-		// a pointer that points to a model object
 	private:
 		physics::ModelPtr model;
 
-		// 	// A joint controller object
-		// 	// Takes PID value and apply angular velocity
-		// 	//  or sets position of the angles
 	private:
 		physics::JointControllerPtr jointController;
-
-	private:
-		event::ConnectionPtr updateConnection;
-
-		// // 	// PID object
-	private:
-		common::PID pid;
 
 		/// \brief A node use for ROS transport
 	private:
@@ -200,7 +169,10 @@ namespace gazebo
 		std::thread rosQueueThread;
 
 	private:
-		ros::Publisher angle_publisher_;
+		std::thread publisherThread;
+
+	private:
+		ros::Publisher anglePublisher;
 	};
 
 	// Register this plugin with the simulator
