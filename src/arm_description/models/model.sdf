@@ -5,6 +5,9 @@
     <self_collide>1</self_collide>
     <link name="chasis">
       <pose>0 0 0.05 0 0 0</pose>
+      <inertial>
+        <mass>50.0</mass>
+      </inertial>
       <collision name="collision">
         <geometry>
           <cylinder>
@@ -24,7 +27,11 @@
     </link>
 
     <link name="arm1">
+      <gravity>0</gravity>
       <pose>0 0 0.125 0 0 0</pose>
+      <inertial>
+        <mass>.1</mass>
+      </inertial>
       <collision name="collision">
         <geometry>
           <cylinder>
@@ -43,6 +50,10 @@
       </visual>
     </link>
     <link name="arm2">
+      <gravity>0</gravity>
+      <inertial>
+        <mass>0.5</mass>
+      </inertial>
       <pose>0 0 1.15 0 0 0</pose>
       <collision name="collision">
         <geometry>
@@ -62,7 +73,11 @@
       </visual>
     </link>
     <link name="arm3">
+      <gravity>0</gravity>
       <pose>0 0 2.65 0 0 0</pose>
+      <inertial>
+        <mass>0.3</mass>
+      </inertial>
       <collision name="collision">
         <geometry>
           <cylinder>
@@ -81,7 +96,11 @@
       </visual>
     </link>
     <link name="arm4">
+      <gravity>0</gravity>
       <pose>0 0 3.4 0 0 0</pose>
+      <inertial>
+        <mass>0.2</mass>
+      </inertial>
       <collision name="collision">
         <geometry>
           <cylinder>
@@ -105,6 +124,16 @@
       <pose> 0 0 -0.025 0 0 0 </pose>
       <axis>
         <xyz> 1 0 1  </xyz>
+        <dynamics>
+          <damping>1.0</damping>
+          <friction>.3</friction>
+          <limit>
+            <lower>-1.0</lower>
+            <upper>1.0</upper>
+            <effort>40</effort>
+            <velocity>1.0</velocity>
+          </limit>
+        </dynamics>
       </axis>
     </joint>
 
@@ -114,6 +143,16 @@
       <pose> 0 0 -1.0 0 0 0</pose>
       <axis>
         <xyz> 1 0 0  </xyz>
+        <dynamics>
+          <damping>1.0</damping>
+          <friction>.3</friction>
+          <limit>
+            <lower>-1.0</lower>
+            <upper>1.0</upper>
+            <effort>40</effort>
+            <velocity>1.0</velocity>
+          </limit>
+        </dynamics>
       </axis>
     </joint>
     <joint name="arm2_arm3_joint" type="revolute">
@@ -122,6 +161,16 @@
       <pose> 0 0 -0.5 0 0 0</pose>
       <axis>
         <xyz> 1 0 0  </xyz>
+        <dynamics>
+          <damping>1.0</damping>
+          <friction>.3</friction>
+          <limit>
+            <lower>-1.0</lower>
+            <upper>1.0</upper>
+            <effort>40</effort>
+            <velocity>1.0</velocity>
+          </limit>
+        </dynamics>
       </axis>
     </joint>
     <joint name="arm3_arm4_joint" type="revolute">
@@ -130,6 +179,16 @@
       <pose> 0 0 -0.25 0 0 0</pose>
       <axis>
         <xyz> 1 0 0  </xyz>
+        <dynamics>
+          <damping>1.0</damping>
+          <friction>.3</friction>
+          <limit>
+            <lower>-1.0</lower>
+            <upper>1.0</upper>
+            <effort>40</effort>
+            <velocity>1.0</velocity>
+          </limit>
+        </dynamics>
       </axis>
     </joint>
     <plugin name="arm_control" filename="libarm_gazebo.so">
