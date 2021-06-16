@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   gazebo_ros
+  message_generation
 
 )
 
@@ -63,19 +64,18 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+# Generate messages in the 'msg' folder
+ add_message_files(
+   FILES
+   pose.msg
+ )
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+# Generate services in the 'srv' folder
+ add_service_files(
+   FILES
+   FK.srv
+   IK.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -85,10 +85,10 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -124,7 +124,11 @@ catkin_package(
 #  LIBRARIES arm_gazebo
 #  CATKIN_DEPENDS arm_lib roscpp rospy std_msgs
 #  DEPENDS system_lib
-DEPENDS roscpp gazebo_ros arm_lib
+ DEPENDS roscpp gazebo_ros arm_lib
+)
+
+catkin_package(
+  CATKIN_DEPENDS message_runtime
 )
 
 ###########
@@ -222,3 +226,15 @@ DEPENDS roscpp gazebo_ros arm_lib
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+include_directories(
+# include
+  ${catkin_INCLUDE_DIRS}
+)
+
+catkin_install_python(PROGRAMS scripts/ik_server.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+catkin_install_python(PROGRAMS scripts/fk_server.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

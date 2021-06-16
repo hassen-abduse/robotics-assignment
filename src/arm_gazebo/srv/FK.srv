@@ -1,0 +1,4 @@
+float64[] joint_angles
+float64[] link_lengths
+---
+float64[] actuator_pose
