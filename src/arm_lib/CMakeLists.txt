@@ -119,17 +119,18 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(transformation_server src/transformation_server.cpp)
-target_link_libraries(transformation_server ${catkin_LIBRARIES})
-add_dependencies(transformation_server arm_lib_gencpp)
-
-add_executable(transformation_client src/transformation_client.cpp)
-target_link_libraries(transformation_client ${catkin_LIBRARIES})
-add_dependencies(transformation_client arm_lib_gencpp)
 
 add_executable(angles_subscriber src/angles_subscriber.cpp)
 target_link_libraries(angles_subscriber ${catkin_LIBRARIES})
 add_dependencies(angles_subscriber arm_lib_generate_messages_cpp)
+
+catkin_install_python(PROGRAMS scripts/transformation_server.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+catkin_install_python(PROGRAMS scripts/transformation_client.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/arm_lib.cpp
