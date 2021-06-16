@@ -219,6 +219,31 @@ namespace gazebo
 			}
 		}
 
+	public:
+		void CatchBox(std::vector<double> _pose)
+		{
+			this->UpdateJointAngles(_pose);
+			std::string palm_left_finger = this->model->GetJoint("palm_left_finger")->GetScopedName();
+			std::string palm_right_finger = this->model->GetJoint("palm_right_finger")->GetScopedName();
+			common::PID _pid = common::PID(7.0, 5.0, 2.0);
+			this->SetPID(palm_left_finger, _pid);
+			this->SetAngle(palm_left_finger, -1.57);
+			this->SetPID(palm_right_finger, _pid);
+			this->SetAngle(palm_right_finger, 1.57);
+		}
+
+	public:
+		void ReleaseBox(std::vector<double> _pose)
+		{
+			this->UpdateJointAngles(_pose);
+			std::string palm_left_finger = this->model->GetJoint("palm_left_finger")->GetScopedName();
+			std::string palm_right_finger = this->model->GetJoint("palm_right_finger")->GetScopedName();
+			common::PID _pid = common::PID(7.0, 5.0, 2.0);
+			this->SetPID(palm_left_finger, _pid);
+			this->SetAngle(palm_left_finger, 0.0);
+			this->SetPID(palm_right_finger, _pid);
+			this->SetAngle(palm_right_finger, 0.0);
+		}
 
 	private:
 		std::vector<double> InverseKinematics(std::vector<double> _pose)
