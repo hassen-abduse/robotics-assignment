@@ -3,7 +3,9 @@
 2. Amir Mustefa – ATR/6830/09
 3. Beshir Dekebo – ATR/3178/09
 4. Mehammed Teshome – ATR/3319/09
-#Execution Steps
+
+
+# Execution Steps
 Execute the following commands to run the program correctly:
 $ roscore
 $ rosrun arm_gazebo ik_server.py
