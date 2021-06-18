@@ -7,10 +7,10 @@
 
 # Execution Steps
 Execute the following commands to run the program correctly:
-$ roscore
-$ rosrun arm_gazebo ik_server.py
-$ rosrun arm_gazebo fk_server.py
-$ roslaunch arm_gazebo arm.launch
+1. $ roscore
+2. $ rosrun arm_gazebo ik_server.py
+3. $ rosrun arm_gazebo fk_server.py
+4. $ roslaunch arm_gazebo arm.launch
 
-To move the End Effector to a position make option 1 to catch and option 0 to release:
-$ rostopic pub /arm/pose_cmd arm_gazebo/pose "x: 3 y: 0. z: 0.0 option: 1" 
+# To move the End Effector to a position make option 1 to catch and option 0 to release:
+1. $ rostopic pub /arm/pose_cmd arm_gazebo/pose "x: 3 y: 0. z: 0.0 option: 1" 
